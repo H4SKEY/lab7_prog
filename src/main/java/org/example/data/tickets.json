@@ -1,0 +1,43 @@
+[
+    {
+        "id": 2,
+        "name": "ticket 2",
+        "creationDate": "2025-03-30T22:15:52.4510583",
+        "coordinates": {
+            "x": 500,
+            "y": 50
+        },
+        "price": 1000,
+        "discount": 10,
+        "type": "CHEAP",
+        "person": {
+            "passportID": "637738",
+            "eyeColor": "GREEN",
+            "hairColor": "BLUE"
+        }
+    },
+    {
+        "id": 3,
+        "name": "test",
+        "creationDate": "2025-04-25T11:01:52.5045306",
+        "coordinates": {
+            "x": 21,
+            "y": 12
+        },
+        "person": {
+        }
+    },
+    {
+        "id": 4,
+        "name": "free",
+        "creationDate": "2025-04-25T11:43:06.6535599",
+        "coordinates": {
+            "x": 123,
+            "y": 123
+        },
+        "price": 123,
+        "discount": 123,
+        "person": {
+        }
+    }
+]
