@@ -1,13 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>org.example</groupId>
-  <artifactId>LAB6_Prog</artifactId>
+  <artifactId>LAB7_Prog</artifactId>
   <version>1.0.0</version>
-
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
@@ -16,12 +11,12 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.7.3</version> <!-- актуальная версия на май 2025 -->
+      <version>42.7.3</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.5.16</version> <!-- проверь актуальную версию -->
+      <version>1.5.16</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -39,7 +34,6 @@
       <version>1.1.6</version>
     </dependency>
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -65,7 +59,6 @@
               <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
-
           <execution>
             <id>server-jar</id>
             <phase>package</phase>
