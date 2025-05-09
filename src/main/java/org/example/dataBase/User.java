@@ -1,8 +1,13 @@
 package org.example.dataBase;
 
-public class User {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String login;
     private String password;
+    @Serial
+    private static final long serialVersionUID = 400L;
 
     public User(String login, String password) {
         this.login = login;
@@ -24,7 +29,6 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
-
 
 
 }
