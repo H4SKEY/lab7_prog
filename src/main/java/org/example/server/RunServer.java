@@ -1,31 +1,49 @@
 package org.example.server;
 
+import org.example.dataBase.DataBaseConnector;
+import org.example.dataBase.DataBaseManager;
 import org.example.util.CollectionManager;
 
+import java.sql.SQLException;
+
 public class RunServer {
-    private static final String ENV_VAR_NAME = "LAB5_FILE";
-    private static final String PORT = "LAB6_PORT";
+    private static final String PORT = "LAB7_PORT";
+    private static final String USER = "LAB7_USER";
+    private static final String PASSWORD = "LAB7_PASSWORD";
+    private static final String URL = "jdbc:postgresql://pg:5432/studs";
 
     public static void main(String[] args) {
-        String fileName = System.getenv(ENV_VAR_NAME);
-        if (fileName == null) {
-            System.out.println("Не указана переменная окружения LAB5_FILE");
+        String portName = System.getenv(PORT);
+        if (portName == null) {
+            System.err.println("Не указана переменная окружения LAB7_PORT");
             System.exit(1);
         }
 
-        String portName = System.getenv(PORT);
-        if (portName == null) {
-            System.out.println("Не указана переменная окружения LAB6_PORT");
+        String user = System.getenv(USER);
+        if (user == null) {
+            System.err.println("Не указана переменная окружения LAB7_USER");
+            System.exit(1);
+        }
+
+        String password = System.getenv(PASSWORD);
+        if (password == null) {
+            System.err.println("Не указана переменная окружения LAB7_PASSWORD");
             System.exit(1);
         }
 
         try {
             int port = Integer.parseInt(portName);
             CollectionManager collectionManager = new CollectionManager();
-            Server server = new Server(port, collectionManager, fileName);
+            DataBaseConnector connector = new DataBaseConnector(URL, user, password);
+            DataBaseManager dataBaseManager = new DataBaseManager(connector.getConnection());
+            collectionManager.setDataBaseManager(dataBaseManager);
+            Server server = new Server(port, collectionManager);
             server.run();
         } catch (NumberFormatException e) {
-            System.out.println("Неверно указан порт");
+            System.err.println("Неверно указан порт");
+            System.exit(1);
+        } catch (SQLException e) {
+            System.err.println("Не удалось подключится к БД " + e.getMessage());
             System.exit(1);
         }
     }

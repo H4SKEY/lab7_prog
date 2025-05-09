@@ -1,10 +1,9 @@
 package org.example.server;
 
 import org.example.commands.AbstractCommand;
-import org.example.commands.SaveCommand;
+import org.example.dataBase.User;
 import org.example.network.Request;
 import org.example.util.CollectionManager;
-import org.example.util.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,94 +11,106 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.concurrent.*;
 
 public class Server {
     private final int port;
     private ServerSocket serverSocket;
-    private Socket socket;
-    private InputStream inputStream;
-    private OutputStream outputStream;
     private final CollectionManager collectionManager;
-    private final FileManager fileManager;
-    private final String fileName;
+    private final ExecutorService requestProcessingPool;
+    private final ExecutorService responseSendingPool;
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
+    private static final int PROCESSING_THREADS = 10; // Количество потоков для обработки запросов
 
-    public Server(int port, CollectionManager collectionManager, String fileName) {
+    public Server(int port, CollectionManager collectionManager) {
         this.port = port;
         this.collectionManager = collectionManager;
-        this.fileName = fileName;
-        this.fileManager = new FileManager(collectionManager, fileName);
+        this.requestProcessingPool = Executors.newFixedThreadPool(PROCESSING_THREADS);
+        this.responseSendingPool = Executors.newCachedThreadPool();
     }
 
     public void run() {
         try {
             serverSocket = new ServerSocket(port);
             logger.info("Сервер запущен на порту {}", port);
-            fileManager.loadCollection();
-            acceptClient();
-            logger.info("Получено соединение с клиентом");
-            handle();  // Сервер продолжит обрабатывать запросы клиента
-        } catch (IOException | ClassNotFoundException e) {
-            // Закрытие соединения только в случае ошибки
-            logger.warn("Завершение работы сервера...");
-        } finally {
-            save();
-            closeClient();
-        }
-    }
+            collectionManager.setTickets(collectionManager.getDataBaseManager().loadCollection());
 
-    private void handle() throws IOException, ClassNotFoundException {
-        // Цикл обработки запросов клиента
-        while (true) {
-            Request request = read();
-            if (request == null) {
-                break;
+            while (true) {
+                try {
+                    Socket clientSocket = serverSocket.accept();
+                    new Thread(() -> handleClient(clientSocket)).start();
+                } catch (IOException e) {
+                    logger.error("Ошибка при принятии соединения", e);
+                }
             }
-            String response = execute(request);
-            send(response);
-        }
-    }
-
-    private void acceptClient() throws IOException {
-        socket = serverSocket.accept();
-        inputStream = socket.getInputStream();
-        outputStream = socket.getOutputStream();
-    }
-
-    private void closeClient() {
-        try {
-            if (inputStream != null) inputStream.close();
-            if (outputStream != null) outputStream.close();
-            if (socket != null && !socket.isClosed()) socket.close();
-            logger.info("Соединение с клиентом закрыто");
         } catch (IOException e) {
-            logger.error("Ошибка при закрытии соединения с клиентом", e);
+            logger.error("Критическая ошибка сервера", e);
+        } finally {
+            shutdown();
         }
     }
 
-    private Request read() throws IOException, ClassNotFoundException {
-        byte[] lengthBytes = inputStream.readNBytes(4);
-        if (lengthBytes.length < 4) throw new EOFException("Не удалось прочитать длину объекта");
+    private void handleClient(Socket clientSocket) {
+        try (InputStream input = clientSocket.getInputStream();
+             OutputStream output = clientSocket.getOutputStream()) {
+
+            logger.info("Обработка нового клиента: {}", clientSocket.getRemoteSocketAddress());
+
+            while (!clientSocket.isClosed()) {
+                Request request = readRequest(input);
+                if (request == null) {
+                    logger.info("Клиент отключился");
+                    break;
+                }
+
+                // Обработка запроса в отдельном потоке из FixedThreadPool
+                requestProcessingPool.submit(() -> {
+                    try {
+                        String response = processRequest(request);
+                        // Отправка ответа в отдельном потоке из CachedThreadPool
+                        responseSendingPool.submit(() -> sendResponse(output, response));
+                    } catch (Exception e) {
+                        logger.error("Ошибка обработки запроса", e);
+                    }
+                });
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            logger.warn("Ошибка при работе с клиентом", e);
+        } finally {
+            try {
+                clientSocket.close();
+                logger.info("Соединение с клиентом закрыто");
+            } catch (IOException e) {
+                logger.error("Ошибка при закрытии соединения", e);
+            }
+        }
+    }
+
+    private Request readRequest(InputStream input) throws IOException, ClassNotFoundException {
+        byte[] lengthBytes = input.readNBytes(4);
+        if (lengthBytes.length < 4) return null;
 
         int length = ByteBuffer.wrap(lengthBytes).getInt();
-        byte[] objectBytes = inputStream.readNBytes(length);
-        if (objectBytes.length < length) throw new EOFException("Не удалось прочитать объект полностью");
+        byte[] objectBytes = input.readNBytes(length);
+        if (objectBytes.length < length) return null;
 
         try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(objectBytes))) {
-            Request request = (Request) objIn.readObject();
-            logger.info("Получено сообщение от клиента");
-            return request;
+            return (Request) objIn.readObject();
         }
     }
 
-    private String execute(Request request) {
+    private String processRequest(Request request) {
+        if (!checkUser(request.getUser())) {
+            return "Неверно введен пароль пользователя";
+        }
+
         AbstractCommand command = request.getCommand();
         command.setCollectionManager(collectionManager);
-        return command.execute(request.getArgs(), request.getData());
+        return command.execute(request);
     }
 
-    private void send(String response) {
+    private void sendResponse(OutputStream output, String response) {
         try {
             ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
             ObjectOutputStream objOut = new ObjectOutputStream(byteOut);
@@ -107,20 +118,41 @@ public class Server {
             objOut.flush();
 
             byte[] data = byteOut.toByteArray();
-            outputStream.write(ByteBuffer.allocate(4).putInt(data.length).array());
-            outputStream.write(data);
-            outputStream.flush();
-
+            synchronized (output) {
+                output.write(ByteBuffer.allocate(4).putInt(data.length).array());
+                output.write(data);
+                output.flush();
+            }
             logger.info("Ответ отправлен клиенту");
-            objOut.close();
-            byteOut.close();
         } catch (IOException e) {
-            logger.error("Ошибка при отправке ответа клиенту", e);
+            logger.error("Ошибка при отправке ответа", e);
         }
     }
 
-    private void save() {
-        SaveCommand command = new SaveCommand(collectionManager);
-        logger.info(command.execute(null, fileName));
+    private boolean checkUser(User user) {
+        logger.info("Проверка пользователя");
+        if (collectionManager.getDataBaseManager().registerUser(user)) {
+            logger.info("Регистрация пользователя в БД");
+            return true;
+        }
+        return collectionManager.getDataBaseManager().isAuthorized(user);
+    }
+
+    private void shutdown() {
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+            requestProcessingPool.shutdown();
+            responseSendingPool.shutdown();
+            if (!requestProcessingPool.awaitTermination(5, TimeUnit.SECONDS)) {
+                requestProcessingPool.shutdownNow();
+            }
+            if (!responseSendingPool.awaitTermination(5, TimeUnit.SECONDS)) {
+                responseSendingPool.shutdownNow();
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Ошибка при завершении работы сервера", e);
+        }
     }
 }
