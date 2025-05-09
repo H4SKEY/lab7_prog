@@ -47,18 +47,15 @@ public class FileManager {
                 }
 
                 collectionManager.setTickets(validTickets);
-                collectionManager.setIds(ids);
                 System.out.println("Загружено " + tickets.size() + " элементов из файла " + fileName);
             }
         } catch (IOException e) {
             System.out.println("Ошибка загрузки файла: " + e.getMessage());
             System.out.println("Будет создана пустая коллекция");
             collectionManager.setTickets(new ArrayList<>());
-            collectionManager.setIds(new TreeSet<>());
         } catch (Exception e) {
             System.out.println("Ошибка при загрузке коллекции: " + e.getMessage());
             collectionManager.setTickets(new ArrayList<>());
-            collectionManager.setIds(new TreeSet<>());
         }
     }
 }
