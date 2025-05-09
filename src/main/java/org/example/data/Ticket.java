@@ -110,7 +110,7 @@ public class Ticket implements Comparable<Ticket>, Serializable {
 
     @Override
     public int compareTo(Ticket other) {
-        return Integer.compare(this.id, other.id);
+        return this.name.compareTo(other.name);
     }
 
     @Override
