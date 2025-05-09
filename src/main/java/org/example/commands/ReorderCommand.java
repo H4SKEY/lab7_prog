@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 
 import java.io.Serial;
@@ -21,7 +22,7 @@ public class ReorderCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
         collectionManager.reorder();
         return "Коллекция отсортирована в обратном порядке";
     }

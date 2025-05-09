@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.Ticket;
 
@@ -22,20 +23,18 @@ public class AddIfMinCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
         String result;
-        int newId = collectionManager.getTickets().stream()
-                .mapToInt(Ticket::getId)
-                .max()
-                .orElse(0) + 1;
-
-        Ticket newTicket = (Ticket) data;
-        newTicket.setId(newId);
+        Ticket newTicket = (Ticket) request.getData();
         Ticket minTicket = collectionManager.getMinTicket();
 
         if (minTicket == null || newTicket.compareTo(minTicket) < 0) {
-            collectionManager.addTicket(newTicket);
-            result = "Элемент добавлен (ID: " + newId + ")";
+            int newId = collectionManager.addTicket(newTicket, request.getUser());
+            if (newId != -1) {
+                result = "Элемент добавлен (ID: " + newId + ")";
+            } else {
+                result = "Элемент не удалось добавить";
+            }
         } else {
             result = "Элемент не является минимальным, добавление отменено";
         }

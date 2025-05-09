@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.Ticket;
 
@@ -22,7 +23,8 @@ public class UpdateCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
+        String[] args = request.getArgs();
         if (args.length < 1) {
             return "Не указан ID элемента";
         }
@@ -38,8 +40,8 @@ public class UpdateCommand extends AbstractCommand implements Serializable {
                 return "Элемент с ID " + id + " не найден";
             }
 
-            Ticket updated = (Ticket) data;
-            collectionManager.updateTicket(id, updated);
+            Ticket updated = (Ticket) request.getData();
+            collectionManager.updateTicket(id, updated, request.getUser());
             result = "Элемент с ID " + id + " обновлен";
         } catch (NumberFormatException e) {
             result = "Неверный формат ID";

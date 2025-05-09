@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.util.FileManager;
 
@@ -22,8 +23,8 @@ public class SaveCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
-        FileManager fileManager = new FileManager(collectionManager, (String) data);
+    public String execute(Request request) {
+        FileManager fileManager = new FileManager(collectionManager, (String) request.getData());
         if (fileManager.saveCollection()) {
             return "Коллекция успешно сохранена";
         }

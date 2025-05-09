@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 
 import java.io.Serial;
@@ -21,15 +22,20 @@ public class RemoveByIdCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
+        String[] args = request.getArgs();
         if (args.length < 1) {
             return "Не указан ID элемента";
         }
         String result;
         try {
             int id = Integer.parseInt(args[0]);
-            collectionManager.removeTicket(id);
-            result = "Элемент с ID " + id + " удален";
+            boolean isRemoved = collectionManager.removeTicket(id, request.getUser());
+            if (isRemoved) {
+                result = "Элемент с ID " + id + " удален";
+            } else {
+                result = "Элемент с ID " + id + " не удалось удалить";
+            }
         } catch (NumberFormatException e) {
             result = "Неверный формат ID";
         }

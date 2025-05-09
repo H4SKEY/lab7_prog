@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 
 import java.io.Serial;
@@ -21,8 +22,8 @@ public class ClearCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
-        collectionManager.clear();
+    public String execute(Request request) {
+        collectionManager.clear(request.getUser());
         return "Коллекция очищена";
     }
 }

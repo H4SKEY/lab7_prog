@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.Person;
 
@@ -21,7 +22,7 @@ public class PrintFieldAscendingPersonCommand extends AbstractCommand implements
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
         List<Person> persons = collectionManager.getPersonsAscending();
 
         if (persons.isEmpty()) {

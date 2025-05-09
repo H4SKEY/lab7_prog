@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 
 import java.io.Serial;
@@ -22,7 +23,7 @@ public abstract class AbstractCommand implements Command, Serializable {
         setCollectionManager(collectionManager);
     }
 
-    public abstract String execute(String[] args, Object data);
+    public abstract String execute(Request request);
 
     public abstract String description();
 }

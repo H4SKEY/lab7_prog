@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.Ticket;
 
@@ -21,7 +22,7 @@ public class ShowCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
         List<Ticket> tickets = collectionManager.getTickets();
 
         if (tickets.isEmpty()) {

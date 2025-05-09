@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.util.CommandManager;
 
@@ -27,7 +28,7 @@ public class HelpCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
         HashMap<String, AbstractCommand> commands = commandManager.getCommands();
         return commands.values().stream()
                 .map(AbstractCommand::description) // Извлекаем описание команды

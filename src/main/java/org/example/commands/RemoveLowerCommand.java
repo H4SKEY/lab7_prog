@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.Ticket;
 
@@ -22,15 +23,10 @@ public class RemoveLowerCommand extends AbstractCommand implements Serializable 
     }
 
     @Override
-    public String execute(String[] args, Object data) {
-        int newId = collectionManager.getTickets().stream()
-                .mapToInt(Ticket::getId)
-                .max()
-                .orElse(0) + 1;
-        Ticket ticket = (Ticket) data;
-        ticket.setId(newId);
+    public String execute(Request request) {
+        Ticket ticket = (Ticket) request.getData();
         int beforeSize = collectionManager.getCollectionSize();
-        collectionManager.removeLower(ticket);
+        collectionManager.removeLower(ticket, request.getUser());
         int removed = beforeSize - collectionManager.getCollectionSize();
         return "Удалено элементов: " + removed;
     }

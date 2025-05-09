@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.Ticket;
 
@@ -23,12 +24,12 @@ public class AddCommand extends AbstractCommand implements Serializable {
     }
 
     @Override
-    public String execute(String[] args, Object data) {
-        Ticket ticket = (Ticket) data;
-        // Генерация ID - находим максимальный существующий и добавляем 1
-        int newId = collectionManager.generateNewId();
-        ticket.setId(newId);
-        collectionManager.addTicket(ticket);
-        return "Билет добавлен с ID: " + newId;
+    public String execute(Request request) {
+        Ticket ticket = (Ticket) request.getData();
+        int newId = collectionManager.addTicket(ticket, request.getUser());
+        if (newId != -1) {
+            return "Билет добавлен с ID: " + newId;
+        }
+        return "Не удалось добавить билет";
     }
 }

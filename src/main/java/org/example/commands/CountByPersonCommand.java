@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.Person;
 
@@ -22,8 +23,8 @@ public class CountByPersonCommand extends AbstractCommand implements Serializabl
     }
 
     @Override
-    public String execute(String[] args, Object data) {
-        Person person = (Person) data;
+    public String execute(Request request) {
+        Person person = (Person) request.getData();
         long count = collectionManager.countByPerson(person);
         return "Найдено элементов: " + count;
     }

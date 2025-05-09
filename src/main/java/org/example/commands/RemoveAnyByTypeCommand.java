@@ -1,6 +1,7 @@
 package org.example.commands;
 
 
+import org.example.network.Request;
 import org.example.util.CollectionManager;
 import org.example.data.TicketType;
 
@@ -24,7 +25,8 @@ public class RemoveAnyByTypeCommand extends AbstractCommand implements Serializa
     }
 
     @Override
-    public String execute(String[] args, Object data) {
+    public String execute(Request request) {
+        String[] args = request.getArgs();
         if (args.length < 1) {
             return "Не указан тип билета";
         }
@@ -32,8 +34,8 @@ public class RemoveAnyByTypeCommand extends AbstractCommand implements Serializa
 
         try {
             TicketType type = TicketType.valueOf(args[0].toUpperCase());
-            collectionManager.removeAnyByType(type);
-            result = "Элемент типа " + type + " удален";
+            collectionManager.removeAnyByType(type, request.getUser());
+            result = "Элементы типа " + type + " удалены";
         } catch (IllegalArgumentException e) {
             result = "Неверный тип билета. Допустимые значения: " + Arrays.toString(TicketType.values());
         }
