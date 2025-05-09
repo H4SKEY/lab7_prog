@@ -6,12 +6,12 @@ import org.example.util.CommandManager;
 import java.util.Scanner;
 
 public class RunClient {
-    private static final String PORT = "LAB6_PORT";
+    private static final String PORT = "LAB7_PORT";
 
     public static void main(String[] args) {
         String portName = System.getenv(PORT);
         if (portName == null) {
-            System.out.println("Не указана переменная окружения LAB6_PORT");
+            System.out.println("Не указана переменная окружения LAB7_PORT");
             System.exit(1);
         }
 
