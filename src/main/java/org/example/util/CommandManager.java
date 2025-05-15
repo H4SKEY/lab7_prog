@@ -1,10 +1,15 @@
 package org.example.util;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashMap;
+
 import org.example.commands.*;
 
 
-public class CommandManager {
+public class CommandManager implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 201L;
 
     private final HashMap<String, AbstractCommand> commands = new HashMap<>();
     private final HashMap<String, AbstractCommand> commandsWithTicket = new HashMap<>();
@@ -24,7 +29,6 @@ public class CommandManager {
         commands.put("update", new UpdateCommand(collectionManager));
         commands.put("remove_by_id", new RemoveByIdCommand(collectionManager));
         commands.put("clear", new ClearCommand(collectionManager));
-        //commands.put("save", new SaveCommand(collectionManager));
         commands.put("execute_script", new ExecuteScriptCommand(collectionManager));
         commands.put("exit", new ExitCommand(collectionManager));
         commands.put("add_if_min", new AddIfMinCommand(collectionManager));
