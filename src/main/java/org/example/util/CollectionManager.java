@@ -127,12 +127,7 @@ public class CollectionManager implements Serializable {
     }
 
     public Ticket getMinTicket() {
-        lock.lock();
-        try {
-            return tickets.stream().min(Ticket::compareTo).orElse(null);
-        } finally {
-            lock.unlock();
-        }
+        return tickets.stream().min(Ticket::compareTo).orElse(null);
     }
 
     public void removeLower(Ticket ticket, User user) {
@@ -159,36 +154,21 @@ public class CollectionManager implements Serializable {
 
 
     public long countByPerson(Person person) {
-        lock.lock();
-        try {
-            return tickets.stream()
-                    .filter(t -> t.getPerson().equals(person))
-                    .count();
-        } finally {
-            lock.unlock();
-        }
+        return tickets.stream()
+                .filter(t -> t.getPerson().equals(person))
+                .count();
     }
 
     public List<Person> getPersonsAscending() {
-        lock.lock();
-        try {
-            return tickets.stream()
-                    .map(Ticket::getPerson)
-                    .sorted(Comparator.comparing(Person::getPassportID, Comparator.nullsFirst(String::compareTo)))
-                    .collect(Collectors.toList());
-        } finally {
-            lock.unlock();
-        }
+        return tickets.stream()
+                .map(Ticket::getPerson)
+                .sorted(Comparator.comparing(Person::getPassportID, Comparator.nullsFirst(String::compareTo)))
+                .collect(Collectors.toList());
     }
 
     // Геттеры для информации о коллекции
     public List<Ticket> getTickets() {
-        lock.lock();
-        try {
-            return new ArrayList<>(tickets); // Возвращаем копию для безопасности
-        } finally {
-            lock.unlock();
-        }
+        return new ArrayList<>(tickets); // Возвращаем копию для безопасности
     }
 
     public void setTickets(List<Ticket> tickets) {
@@ -209,12 +189,7 @@ public class CollectionManager implements Serializable {
     }
 
     public int getCollectionSize() {
-        lock.lock();
-        try {
-            return tickets.size();
-        } finally {
-            lock.unlock();
-        }
+        return tickets.size();
     }
 
     public DataBaseManager getDataBaseManager() {
