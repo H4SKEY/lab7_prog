@@ -13,9 +13,12 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Client {
+    private final Set<String> scriptFileNames;
     private final int port;
     private final String serverAddress;
     private final CommandManager commandManager;
@@ -30,6 +33,7 @@ public class Client {
         this.commandManager = commandManager;
         this.inputManager = new InputManager(scanner);
         this.scanner = scanner;
+        this.scriptFileNames = new HashSet<>();
     }
 
     public User inputUser() {
@@ -95,7 +99,8 @@ public class Client {
             }
             executeScript(commandArgs[0], socketChannel);
         } else if (commandName.equals("exit")) {
-            handleExitCommand(command, commandArgs);
+            System.out.println(command.execute(new Request(null, commandArgs, null, user)));
+            System.exit(0);
         } else {
             Request request = createRequest(command, commandName, commandArgs);
             sendRequest(socketChannel, request);
@@ -113,11 +118,6 @@ public class Client {
         return new Request(command, commandArgs, null, user);
     }
 
-    private void handleExitCommand(AbstractCommand command, String[] commandArgs) {
-        System.out.println(command.execute(new Request(null, commandArgs, null, user)));
-        System.exit(0);
-    }
-
     private String readUserInput() {
         System.out.print("> ");
         return scanner.nextLine().trim();
@@ -132,6 +132,13 @@ public class Client {
             return;
         }
 
+        if (!scriptFileNames.contains(fileName)) {
+            System.out.println("Ошибка: найдена рекурсия: " + fileName);
+            return;
+        }
+
+        scriptFileNames.add(fileName);
+
         try (BufferedReader reader = new BufferedReader(new FileReader(scriptFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -141,6 +148,8 @@ public class Client {
                 processScriptLine(line, socketChannel);
             }
         }
+
+        scriptFileNames.remove(fileName);
     }
 
     private void processScriptLine(String line, SocketChannel socketChannel)
@@ -149,22 +158,7 @@ public class Client {
         String commandName = parts[0].toLowerCase();
         String[] commandArgs = parts.length > 1 ? parts[1].split("\\s+") : new String[0];
 
-        // Запрет вложенных скриптов
-        if (commandName.equals("execute_script")) {
-            System.out.println("Ошибка: Вложенные скрипты запрещены");
-            return;
-        }
-
-        AbstractCommand command = commandManager.getCommands().get(commandName);
-        if (command == null) {
-            System.out.println("Неизвестная команда в скрипте: " + commandName);
-            return;
-        }
-
-        Request request = createRequest(command, commandName, commandArgs);
-        sendRequest(socketChannel, request);
-        String response = readResponse(socketChannel);
-        System.out.println(response);
+        processCommand(socketChannel, commandName, commandArgs);
     }
 
     private void handleConnectionError(Exception e) {
