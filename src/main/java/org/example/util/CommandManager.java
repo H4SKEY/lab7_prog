@@ -1,15 +1,10 @@
 package org.example.util;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.HashMap;
-
 import org.example.commands.*;
 
 
-public class CommandManager implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 201L;
+public class CommandManager {
 
     private final HashMap<String, AbstractCommand> commands = new HashMap<>();
     private final HashMap<String, AbstractCommand> commandsWithTicket = new HashMap<>();
