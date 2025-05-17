@@ -135,7 +135,7 @@ public class Server {
             logger.info("Регистрация пользователя в БД");
             return true;
         }
-        return collectionManager.getDataBaseManager().isAuthorized(user);
+        return collectionManager.getDataBaseManager().checkPassword(user.getLogin(), user.getPassword());
     }
 
     private void shutdown() {

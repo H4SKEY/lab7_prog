@@ -45,11 +45,9 @@ public class DataBaseManager {
             return false;
         }
     }
-
-    public boolean isAuthorized(User user) {
-        return userExists(user.getLogin()) && checkPassword(user.getLogin(), user.getPassword());
-    }
-
+    
+    
+    
     public boolean registerUser(User user) {
         if (userExists(user.getLogin())) return false;
         return insertUser(user);
@@ -88,7 +86,7 @@ public class DataBaseManager {
 
     public int insertPerson(Person person, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return -1;
             }
             int userId = getUserId(user.getLogin());
@@ -140,7 +138,7 @@ public class DataBaseManager {
 
     public int insertCoordinates(Coordinates coordinates, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return -1;
             }
             int userId = getUserId(user.getLogin());
@@ -172,7 +170,7 @@ public class DataBaseManager {
 
     public int insertTicket(Ticket ticket, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return -1;
             }
             int userId = getUserId(user.getLogin());
@@ -438,7 +436,7 @@ public class DataBaseManager {
 
     public boolean updateCoordinates(int id, Coordinates newCoordinates, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return false;
             }
 
@@ -464,7 +462,7 @@ public class DataBaseManager {
 
     public boolean updatePerson(int id, Person newPerson, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return false;
             }
 
@@ -491,7 +489,7 @@ public class DataBaseManager {
 
     public boolean updateTicket(int id, Ticket newTicket, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return false;
             }
 
@@ -539,7 +537,7 @@ public class DataBaseManager {
 
     public boolean removeTicketById(int id, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return false;
             }
             int userId = getUserId(user.getLogin());
@@ -561,7 +559,7 @@ public class DataBaseManager {
 
     public boolean clearUserTickets(User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return false;
             }
             int userId = getUserId(user.getLogin());
@@ -581,7 +579,7 @@ public class DataBaseManager {
 
     public boolean isTicketOwnedByUser(int ticketId, User user) {
         try {
-            if (!isAuthorized(user)) {
+            if (!checkPassword(user.getLogin(), user.getPassword())) {
                 return false;
             }
             int userId = getUserId(user.getLogin());

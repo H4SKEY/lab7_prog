@@ -10,7 +10,8 @@ public class RunServer {
     private static final String PORT = "LAB7_PORT";
     private static final String USER = "LAB7_USER";
     private static final String PASSWORD = "LAB7_PASSWORD";
-    private static final String URL = "jdbc:postgresql://pg:5432/studs";
+    //private static final String URL = "jdbc:postgresql://pg:5432/studs";
+    private static final String URL = "jdbc:postgresql://localhost:5432/lab7_prog";
 
     public static void main(String[] args) {
         String portName = System.getenv(PORT);

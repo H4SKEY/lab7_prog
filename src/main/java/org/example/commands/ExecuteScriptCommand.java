@@ -12,6 +12,7 @@ public class ExecuteScriptCommand extends AbstractCommand implements Serializabl
     private static final long serialVersionUID = 105L;
 
     public ExecuteScriptCommand(CollectionManager collectionManager) {
+
         super(collectionManager);
     }
 
