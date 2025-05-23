@@ -1,0 +1,18 @@
+<configuration>
+    <!-- Вывод в консоль -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- Упрощённый формат для клиента: время + уровень + сообщение -->
+            <pattern>%d{HH:mm:ss} %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Логировать только INFO и выше (чтобы избежать шума) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <!-- Дополнительные настройки для конкретных пакетов -->
+    <logger name="org.example.client" level="DEBUG"/> <!-- DEBUG для вашего кода -->
+    <logger name="org.postgresql" level="WARN"/>    <!-- Скрыть логи PostgreSQL (если есть) -->
+</configuration>
